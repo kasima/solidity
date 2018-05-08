@@ -75,7 +75,6 @@ BOOST_AUTO_TEST_CASE(basic_test)
 	char const* interface = R"([
 	{
 		"name": "f",
-		"constant": false,
 		"payable" : false,
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -119,7 +118,6 @@ BOOST_AUTO_TEST_CASE(multiple_methods)
 	char const* interface = R"([
 	{
 		"name": "f",
-		"constant": false,
 		"payable" : false,
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -138,7 +136,6 @@ BOOST_AUTO_TEST_CASE(multiple_methods)
 	},
 	{
 		"name": "g",
-		"constant": false,
 		"payable" : false,
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -171,7 +168,6 @@ BOOST_AUTO_TEST_CASE(multiple_params)
 	char const* interface = R"([
 	{
 		"name": "f",
-		"constant": false,
 		"payable" : false,
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -210,7 +206,6 @@ BOOST_AUTO_TEST_CASE(multiple_methods_order)
 	char const* interface = R"([
 	{
 		"name": "c",
-		"constant": false,
 		"payable" : false,
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -229,7 +224,6 @@ BOOST_AUTO_TEST_CASE(multiple_methods_order)
 	},
 	{
 		"name": "f",
-		"constant": false,
 		"payable" : false,
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -263,7 +257,6 @@ BOOST_AUTO_TEST_CASE(view_function)
 	char const* interface = R"([
 	{
 		"name": "foo",
-		"constant": false,
 		"payable" : false,
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -286,7 +279,6 @@ BOOST_AUTO_TEST_CASE(view_function)
 	},
 	{
 		"name": "boo",
-		"constant": true,
 		"payable" : false,
 		"stateMutability": "view",
 		"type": "function",
@@ -318,7 +310,6 @@ BOOST_AUTO_TEST_CASE(pure_function)
 	char const* interface = R"([
 	{
 		"name": "foo",
-		"constant": false,
 		"payable" : false,
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -341,7 +332,6 @@ BOOST_AUTO_TEST_CASE(pure_function)
 	},
 	{
 		"name": "boo",
-		"constant": true,
 		"payable" : false,
 		"stateMutability": "pure",
 		"type": "function",
@@ -375,7 +365,6 @@ BOOST_AUTO_TEST_CASE(events)
 	char const* interface = R"([
 	{
 		"name": "f",
-		"constant": false,
 		"payable" : false,
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -475,7 +464,6 @@ BOOST_AUTO_TEST_CASE(inherited)
 	char const* interface = R"([
 	{
 		"name": "baseFunction",
-		"constant": false,
 		"payable" : false,
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -492,7 +480,6 @@ BOOST_AUTO_TEST_CASE(inherited)
 	},
 	{
 		"name": "derivedFunction",
-		"constant": false,
 		"payable" : false,
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -548,7 +535,6 @@ BOOST_AUTO_TEST_CASE(empty_name_input_parameter_with_named_one)
 	char const* interface = R"([
 	{
 		"name": "f",
-		"constant": false,
 		"payable" : false,
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -591,7 +577,6 @@ BOOST_AUTO_TEST_CASE(empty_name_return_parameter)
 	char const* interface = R"([
 	{
 		"name": "f",
-		"constant": false,
 		"payable" : false,
 		"stateMutability": "nonpayable",
 		"type": "function",
@@ -693,7 +678,6 @@ BOOST_AUTO_TEST_CASE(return_param_in_abi)
 	char const* interface = R"(
 	[
 		{
-			"constant" : false,
 			"payable" : false,
 			"stateMutability": "nonpayable",
 			"inputs" : [],
@@ -734,7 +718,6 @@ BOOST_AUTO_TEST_CASE(strings_and_arrays)
 	char const* interface = R"(
 	[
 		{
-			"constant" : false,
 			"payable" : false,
 			"stateMutability": "nonpayable",
 			"name": "f",
@@ -763,7 +746,6 @@ BOOST_AUTO_TEST_CASE(library_function)
 	char const* interface = R"(
 	[
 		{
-			"constant" : false,
 			"payable" : false,
 			"stateMutability": "nonpayable",
 			"name": "f",
@@ -815,7 +797,6 @@ BOOST_AUTO_TEST_CASE(payable_function)
 	char const* interface = R"(
 	[
 		{
-			"constant" : false,
 			"payable": false,
 			"stateMutability": "nonpayable",
 			"inputs": [],
@@ -824,7 +805,6 @@ BOOST_AUTO_TEST_CASE(payable_function)
 			"type" : "function"
 		},
 		{
-			"constant" : false,
 			"payable": true,
 			"stateMutability": "payable",
 			"inputs": [],
@@ -868,7 +848,6 @@ BOOST_AUTO_TEST_CASE(function_type)
 	char const* interface = R"(
 	[
 	{
-		"constant" : false,
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"inputs": [{
@@ -897,7 +876,6 @@ BOOST_AUTO_TEST_CASE(return_structs)
 	)";
 	char const* interface = R"(
 	[{
-		"constant" : false,
 		"inputs" : [],
 		"name" : "f",
 		"outputs" : [
@@ -946,7 +924,6 @@ BOOST_AUTO_TEST_CASE(return_structs_with_contracts)
 	)";
 	char const* interface = R"(
 	[{
-		"constant": false,
 		"inputs": [],
 		"name": "f",
 		"outputs": [
@@ -1047,7 +1024,6 @@ BOOST_AUTO_TEST_CASE(structs_in_libraries)
 	)";
 	char const* interface = R"(
 	[{
-		"constant": false,
 		"inputs": [
 			{
 				"components": [
@@ -1081,7 +1057,6 @@ BOOST_AUTO_TEST_CASE(structs_in_libraries)
 		"type": "function"
 	},
 	{
-		"constant": false,
 		"inputs": [
 			{
 				"name": "s",
