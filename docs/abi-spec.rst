@@ -414,12 +414,12 @@ A function description is a JSON object with the fields:
 - ``payable``: ``true`` if function accepts ether, ``false`` otherwise.
 - ``constant``: ``true`` if function is either ``pure`` or ``view``, ``false`` otherwise.
 
-``type`` can be omitted, defaulting to ``"function"``, likewise ``payable`` and ``constant`` can be omitted, both defaulting to ``false``.
+``type`` can be omitted, defaulting to ``"function"``, likewise ``payable`` can be omitted, both defaulting to ``false``.
 
 Constructor and fallback function never have ``name`` or ``outputs``. Fallback function doesn't have ``inputs`` either.
 
 .. warning::
-    The fields ``constant`` and ``payable`` are deprecated and will be removed in the future. Instead, the ``stateMutability`` field can be used to determine the same properties.
+    The fields ``constant`` and ``payable`` were removed in version 0.5.0. Instead, the ``stateMutability`` field can be used to determine the same properties.
 
 .. note::
     Sending non-zero ether to non-payable function will revert the transaction.
