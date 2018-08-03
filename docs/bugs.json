@@ -1,11 +1,12 @@
 [
 	{
-		"name": "ExternalFunctionsDoNotReturnNestedArrays",
-		"summary": "Solidity calls to external functions (internal functions are safe) that return nested arrays return wrong values.",
-		"description": "The compiler does not complain about external functions (internal functions are safe) called inside the contract returning nested arrays, but it also does not return it correctly. Thus, the function caller receives wrong values.",
+		"name": "NestedArrayFunctionCallDecoder",
+		"summary": "Calling functions that return multi-dimensional fixed-size arrays can result in memory corruption.",
+		"description": "If Solidity code calls a function that returns a multi-dimensional fixed-size array, array elements are incorrectly interpreted as memory pointers and thus can cause memory corruption if the return values are accessed. Calling functions with multi-dimensional fixed-size arrays is unaffected as is returning fixed-size arrays from function calls.",
 		"introduced": "0.1.4",
 		"fixed": "0.4.22",
-		"severity": "medium"
+		"severity": "medium",
+		"check": {"regex-source": "returns.*?\\[\\d+\\]\\[\\d+\\][^{;]*[;{]"}
 	},
     {
         "name": "OneOfTwoConstructorsSkipped",
