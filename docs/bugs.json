@@ -1,11 +1,11 @@
 [
 	{
-		"name": "PublicLibFunctionsDoNotReturnNestedArrays",
-		"summary": "Calls to public library functions (internal functions are safe) that return nested arrays return only zeroes.",
-		"description": "The compiler does not complain about public library functions (internal functions are safe) returning nested arrays, but it also does not return it correctly. Thus, the function caller receives only zeroes.",
-		"introduced": "0.4.11",
+		"name": "ExternalFunctionsDoNotReturnNestedArrays",
+		"summary": "Solidity calls to external functions (internal functions are safe) that return nested arrays return wrong values.",
+		"description": "The compiler does not complain about external functions (internal functions are safe) called inside the contract returning nested arrays, but it also does not return it correctly. Thus, the function caller receives wrong values.",
+		"introduced": "0.1.4",
 		"fixed": "0.4.22",
-		"severity": "low"
+		"severity": "medium"
 	},
     {
         "name": "OneOfTwoConstructorsSkipped",
