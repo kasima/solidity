@@ -352,13 +352,7 @@ TypePointer Type::forLiteral(Literal const& _literal)
 	case Token::FalseLiteral:
 		return make_shared<BoolType>();
 	case Token::Number:
-	{
-		tuple<bool, rational> validLiteral = RationalNumberType::isValidLiteral(_literal);
-		if (get<0>(validLiteral) == true)
-			return make_shared<RationalNumberType>(get<1>(validLiteral));
-		else
-			return TypePointer();
-	}
+		return RationalNumberType::forLiteral(_literal);
 	case Token::StringLiteral:
 		return make_shared<StringLiteralType>(_literal);
 	default:
@@ -776,6 +770,27 @@ tuple<bool, rational> RationalNumberType::parseRational(string const& _value)
 	}
 }
 
+TypePointer RationalNumberType::forLiteral(Literal const& _literal)
+{
+	solAssert(_literal.token() == Token::Number, "");
+	tuple<bool, rational> validLiteral = isValidLiteral(_literal);
+	if (get<0>(validLiteral))
+	{
+		TypePointer compatibleBytesType;
+		if (_literal.isHexNumber())
+			// counts the number of hex digits plus one (the "0" in "0x")
+			// and divides by two to obtain the compatible byte size
+			compatibleBytesType = make_shared<FixedBytesType>(count_if(
+				_literal.value().begin(),
+				_literal.value().end(),
+				[](unsigned char _c) -> bool { return isxdigit(_c); }
+			) / 2);
+
+		return make_shared<RationalNumberType>(get<1>(validLiteral), compatibleBytesType);
+	}
+	return TypePointer();
+}
+
 tuple<bool, rational> RationalNumberType::isValidLiteral(Literal const& _literal)
 {
 	rational value;
@@ -927,11 +942,13 @@ bool RationalNumberType::isImplicitlyConvertibleTo(Type const& _convertTo) const
 
 bool RationalNumberType::isExplicitlyConvertibleTo(Type const& _convertTo) const
 {
-	TypePointer mobType = mobileType();
-	return
-		(mobType && mobType->isExplicitlyConvertibleTo(_convertTo)) ||
-		(!isFractional() && _convertTo.category() == Category::FixedBytes)
-	;
+	if (_convertTo.category() == Category::FixedBytes)
+		return (m_value == rational(0)) || (m_compatibleBytesType && *m_compatibleBytesType == _convertTo);
+	else
+	{
+		TypePointer mobType = mobileType();
+		return (mobType && mobType->isExplicitlyConvertibleTo(_convertTo));
+	}
 }
 
 TypePointer RationalNumberType::unaryOperatorResult(Token::Value _operator) const
