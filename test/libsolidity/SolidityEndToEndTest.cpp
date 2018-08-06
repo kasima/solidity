@@ -8024,12 +8024,12 @@ BOOST_AUTO_TEST_CASE(short_strings)
 				// change length: long -> short
 				data1.length = 22;
 				if (data1.length != 22) return 14;
-				if (data1[21] != byte(21 * 3)) return 15;
+				if (data1[21] != byte(uint8(21 * 3))) return 15;
 				if (data1[2] != 2 * 3) return 16;
 				// change length: short -> shorter
 				data1.length = 19;
 				if (data1.length != 19) return 17;
-				if (data1[7] != byte(7 * 3)) return 18;
+				if (data1[7] != byte(uint8(7 * 3))) return 18;
 				// and now again to original size
 				data1.length = 22;
 				if (data1.length != 22) return 19;
@@ -8845,7 +8845,7 @@ BOOST_AUTO_TEST_CASE(fixed_bytes_length_access)
 		contract C {
 			byte a;
 			function f(bytes32 x) public returns (uint, uint, uint) {
-				return (x.length, bytes16(2).length, a.length + 7);
+				return (x.length, bytes16(uint128(2)).length, a.length + 7);
 			}
 		}
 	)";
@@ -9342,7 +9342,7 @@ BOOST_AUTO_TEST_CASE(iszero_bnot_correct)
 			function f() public returns (bool) {
 				bytes32 x = 1;
 				assembly { x := not(x) }
-				if (x != ~bytes32(1)) return false;
+				if (x != ~bytes32(uint256(1))) return false;
 				assembly { x := iszero(x) }
 				if (x != bytes32(0)) return false;
 				return true;
