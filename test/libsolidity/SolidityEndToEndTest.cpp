@@ -2212,7 +2212,7 @@ BOOST_AUTO_TEST_CASE(log0)
 	char const* sourceCode = R"(
 		contract test {
 			function a() public {
-				log0(1);
+				log0(bytes32(uint256(1)));
 			}
 		}
 	)";
@@ -2229,7 +2229,7 @@ BOOST_AUTO_TEST_CASE(log1)
 	char const* sourceCode = R"(
 		contract test {
 			function a() public {
-				log1(1, 2);
+				log1(bytes32(uint256(1)), bytes32(uint256(2)));
 			}
 		}
 	)";
@@ -2247,7 +2247,7 @@ BOOST_AUTO_TEST_CASE(log2)
 	char const* sourceCode = R"(
 		contract test {
 			function a() public {
-				log2(1, 2, 3);
+				log2(bytes32(uint256(1)), bytes32(uint256(2)), bytes32(uint256(3)));
 			}
 		}
 	)";
@@ -2266,7 +2266,7 @@ BOOST_AUTO_TEST_CASE(log3)
 	char const* sourceCode = R"(
 		contract test {
 			function a() public {
-				log3(1, 2, 3, 4);
+				log3(bytes32(uint256(1)), bytes32(uint256(2)), bytes32(uint256(3)), bytes32(uint256(4)));
 			}
 		}
 	)";
@@ -2285,7 +2285,7 @@ BOOST_AUTO_TEST_CASE(log4)
 	char const* sourceCode = R"(
 		contract test {
 			function a() public {
-				log4(1, 2, 3, 4, 5);
+				log4(bytes32(uint256(1)), bytes32(uint256(2)), bytes32(uint256(3)), bytes32(uint256(4)), bytes32(uint256(5)));
 			}
 		}
 	)";
@@ -2304,7 +2304,7 @@ BOOST_AUTO_TEST_CASE(log_in_constructor)
 	char const* sourceCode = R"(
 		contract test {
 			constructor() public {
-				log1(1, 2);
+				log1(bytes32(uint256(1)), bytes32(uint256(2)));
 			}
 		}
 	)";
@@ -4974,7 +4974,7 @@ BOOST_AUTO_TEST_CASE(array_copy_target_simple)
 			function test() public returns (bytes17 a, bytes17 b, bytes17 c, bytes17 d, bytes17 e) {
 				for (uint i = 0; i < data1.length; ++i)
 					data1[i] = bytes8(uint64(i));
-				data2[8] = data2[9] = 2;
+				data2[8] = data2[9] = bytes8(uint64(2));
 				data2 = data1;
 				a = data2[1];
 				b = data2[2];
@@ -5033,10 +5033,10 @@ BOOST_AUTO_TEST_CASE(array_copy_target_leftover2)
 			bytes8[4] data1; // fits into one slot
 			bytes10[6] data2; // 4 elements need two slots
 			function test() public returns (bytes10 r1, bytes10 r2, bytes10 r3) {
-				data1[0] = 1;
-				data1[1] = 2;
-				data1[2] = 3;
-				data1[3] = 4;
+				data1[0] = bytes8(uint64(1));
+				data1[1] = bytes8(uint64(2));
+				data1[2] = bytes8(uint64(3));
+				data1[3] = bytes8(uint64(4));
 				for (uint i = 0; i < data2.length; ++i)
 					data2[i] = bytes10(uint80(0xffff00 | (1 + i)));
 				data2 = data1;
@@ -5231,13 +5231,13 @@ BOOST_AUTO_TEST_CASE(byte_array_push)
 		contract c {
 			bytes data;
 			function test() public returns (bool x) {
-				if (data.push(5) != 1)  return true;
-				if (data[0] != 5) return true;
-				data.push(4);
-				if (data[1] != 4) return true;
-				uint l = data.push(3);
-				if (data[2] != 3) return true;
-				if (l != 3) return true;
+				if (data.push(0x5) != 1)  return true;
+				if (data[0] != 0x5) return true;
+				data.push(0x4);
+				if (data[1] != 0x4) return true;
+				uint l = data.push(0x3);
+				if (data[2] != 0x3) return true;
+				if (l != 0x3) return true;
 			}
 		}
 	)";
@@ -5410,11 +5410,11 @@ BOOST_AUTO_TEST_CASE(byte_array_pop)
 		contract c {
 			bytes data;
 			function test() public returns (uint x, uint y, uint l) {
-				data.push(7);
-				x = data.push(3);
+				data.push(0x7);
+				x = data.push(0x3);
 				data.pop();
 				data.pop();
-				y = data.push(2);
+				y = data.push(0x2);
 				l = data.length;
 			}
 		}
@@ -5447,9 +5447,9 @@ BOOST_AUTO_TEST_CASE(byte_array_pop_storage_empty)
 		contract c {
 			bytes data;
 			function test() public {
-				data.push(7);
-				data.push(5);
-				data.push(3);
+				data.push(0x7);
+				data.push(0x5);
+				data.push(0x3);
 				data.pop();
 				data.pop();
 				data.pop();
@@ -5495,7 +5495,7 @@ BOOST_AUTO_TEST_CASE(byte_array_pop_long_storage_empty_garbage_ref)
 			bytes data;
 			function test() public {
 				for (uint8 i = 0; i <= 40; i++)
-					data.push(3);
+					data.push(0x3);
 				for (uint8 j = 0; j <= 40; j++) {
 					assembly {
 						mstore(0, "garbage")
@@ -5517,7 +5517,7 @@ BOOST_AUTO_TEST_CASE(byte_array_pop_masking_long)
 			bytes data;
 			function test() public returns (bytes memory) {
 				for (uint i = 0; i < 34; i++)
-					data.push(3);
+					data.push(0x3);
 				data.pop();
 				return data;
 			}
@@ -5539,7 +5539,7 @@ BOOST_AUTO_TEST_CASE(byte_array_pop_copy_long)
 			bytes data;
 			function test() public returns (bytes memory) {
 				for (uint i = 0; i < 33; i++)
-					data.push(3);
+					data.push(0x3);
 				for (uint j = 0; j < 4; j++)
 					data.pop();
 				return data;
@@ -5629,10 +5629,10 @@ BOOST_AUTO_TEST_CASE(bytes_index_access)
 				data[31] = 0x77;
 				data[32] = 0x14;
 
-				data[31] = 1;
-				data[31] |= 8;
-				data[30] = 1;
-				data[32] = 3;
+				data[31] = 0x1;
+				data[31] |= 0x8;
+				data[30] = 0x1;
+				data[32] = 0x3;
 				return uint(uint8(data[30])) * 0x100 | uint(uint8(data[31])) * 0x10 | uint(uint8(data[32]));
 			}
 		}
@@ -5660,7 +5660,7 @@ BOOST_AUTO_TEST_CASE(bytes_delete_element)
 				delete data[94];
 				delete data[96];
 				delete data[98];
-				return data[94] == 0 && data[95] == 95 && data[96] == 0 && data[97] == 97;
+				return data[94] == 0 && data[95] == byte(uint8(95)) && data[96] == 0 && data[97] == byte(uint8(97));
 			}
 		}
 	)";
@@ -6017,19 +6017,19 @@ BOOST_AUTO_TEST_CASE(packed_storage_structs_bytes)
 			s2 data;
 			byte y;
 			function test() public returns (bool) {
-				x = 1;
-				data.a = 2;
-				data.inner.a = 3;
-				data.inner.b = 4;
+				x = 0x1;
+				data.a = 0x2;
+				data.inner.a = 0x3;
+				data.inner.b = 0x4;
 				data.inner.c = "1234567890";
 				data.inner.d = "123456789";
 				data.inner.e = "abcdefghij";
-				data.b = 5;
-				data.c = 6;
-				y = 7;
-				return x == 1 && data.a == 2 && data.inner.a == 3 && data.inner.b == 4 &&
+				data.b = 0x5;
+				data.c = byte(0x6);
+				y = 0x7;
+				return x == 0x1 && data.a == 0x2 && data.inner.a == 0x3 && data.inner.b == 0x4 &&
 					data.inner.c == "1234567890" && data.inner.d == "123456789" &&
-					data.inner.e == "abcdefghij" && data.b == 5 && data.c == 6 && y == 7;
+					data.inner.e == "abcdefghij" && data.b == 0x5 && data.c == byte(0x6) && y == 0x7;
 			}
 		}
 	)";
@@ -8019,13 +8019,13 @@ BOOST_AUTO_TEST_CASE(short_strings)
 				if (data1[4] != "4") return 11;
 				for (uint i = 0; i < data1.length; i ++)
 					data1[i] = byte(uint8(i * 3));
-				if (data1[4] != 4 * 3) return 12;
-				if (data1[67] != 67 * 3) return 13;
+				if (uint8(data1[4]) != 4 * 3) return 12;
+				if (uint8(data1[67]) != 67 * 3) return 13;
 				// change length: long -> short
 				data1.length = 22;
 				if (data1.length != 22) return 14;
-				if (data1[21] != byte(uint8(21 * 3))) return 15;
-				if (data1[2] != 2 * 3) return 16;
+				if (uint8(data1[21]) != 21 * 3) return 15;
+				if (uint8(data1[2]) != 2 * 3) return 16;
 				// change length: short -> shorter
 				data1.length = 19;
 				if (data1.length != 19) return 17;
@@ -9340,7 +9340,7 @@ BOOST_AUTO_TEST_CASE(iszero_bnot_correct)
 	char const* sourceCode = R"(
 		contract C {
 			function f() public returns (bool) {
-				bytes32 x = 1;
+				bytes32 x = bytes32(uint256(1));
 				assembly { x := not(x) }
 				if (x != ~bytes32(uint256(1))) return false;
 				assembly { x := iszero(x) }
@@ -9361,7 +9361,7 @@ BOOST_AUTO_TEST_CASE(cleanup_bytes_types)
 			function f(bytes2 a, uint16 x) public returns (uint) {
 				if (a != "ab") return 1;
 				if (x != 0x0102) return 2;
-				if (bytes3(uint24(x)) != 0x0102) return 3;
+				if (bytes3(uint24(x)) != 0x000102) return 3;
 				return 0;
 			}
 		}
@@ -9693,7 +9693,7 @@ BOOST_AUTO_TEST_CASE(failing_ecrecover_invalid_input)
 	char const* sourceCode = R"(
 		contract C {
 			function f() public returns (address) {
-				return ecrecover(bytes32(uint(-1)), 1, 2, 3);
+				return ecrecover(bytes32(uint(-1)), 1, bytes32(uint(2)), bytes32(uint(3)));
 			}
 		}
 	)";
@@ -9711,8 +9711,8 @@ BOOST_AUTO_TEST_CASE(failing_ecrecover_invalid_input_proper)
 					0, // invalid v value
 					0x6944c77849b18048f6abe0db8084b0d0d0689cdddb53d2671c36967b58691ad4,
 					0xef4f06ba4f78319baafd0424365777241af4dfd3da840471b4b4b087b7750d0d,
-					0x00ca35b7d915458ef540ade6068dfe2f44e8fa733c,
-					0x00ca35b7d915458ef540ade6068dfe2f44e8fa733c
+					0x000000000000000000000000ca35b7d915458ef540ade6068dfe2f44e8fa733c,
+					0x000000000000000000000000ca35b7d915458ef540ade6068dfe2f44e8fa733c
 				);
 			}
 			function recover(bytes32 hash, uint8 v, bytes32 r, bytes32 s, uint blockExpired, bytes32 salt)
