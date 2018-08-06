@@ -927,14 +927,7 @@ bool RationalNumberType::isImplicitlyConvertibleTo(Type const& _convertTo) const
 		return false;
 	}
 	case Category::FixedBytes:
-	{
-		FixedBytesType const& fixedBytes = dynamic_cast<FixedBytesType const&>(_convertTo);
-		if (isFractional())
-			return false;
-		if (integerType())
-			return fixedBytes.numBytes() * 8 >= integerType()->numBits();
-		return false;
-	}
+		return (m_value == rational(0)) || (m_compatibleBytesType && *m_compatibleBytesType == _convertTo);
 	default:
 		return false;
 	}
@@ -942,13 +935,15 @@ bool RationalNumberType::isImplicitlyConvertibleTo(Type const& _convertTo) const
 
 bool RationalNumberType::isExplicitlyConvertibleTo(Type const& _convertTo) const
 {
-	if (_convertTo.category() == Category::FixedBytes)
-		return (m_value == rational(0)) || (m_compatibleBytesType && *m_compatibleBytesType == _convertTo);
-	else
+	if (isImplicitlyConvertibleTo(_convertTo))
+		return true;
+	else if (_convertTo.category() != Category::FixedBytes)
 	{
 		TypePointer mobType = mobileType();
 		return (mobType && mobType->isExplicitlyConvertibleTo(_convertTo));
 	}
+	else
+		return false;
 }
 
 TypePointer RationalNumberType::unaryOperatorResult(Token::Value _operator) const
