@@ -40,7 +40,7 @@
 					{
 						"documentation" : null,
 						"implemented" : true,
-						"kind" : "constructor",
+						"isConstructor" : true,
 						"modifiers" : 
 						[
 							null

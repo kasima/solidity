@@ -107,7 +107,7 @@
 					{
 						"documentation" : "Some comment on fn.",
 						"implemented" : true,
-						"kind" : "function",
+						"isConstructor" : false,
 						"modifiers" : 
 						[
 							null
