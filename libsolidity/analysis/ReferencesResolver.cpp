@@ -169,13 +169,13 @@ void ReferencesResolver::endVisit(FunctionTypeName const& _typeName)
 	case VariableDeclaration::Visibility::External:
 		break;
 	default:
-		typeError(_typeName.location(), "Invalid visibility, can only be \"external\" or \"internal\".");
+		fatalTypeError(_typeName.location(), "Invalid visibility, can only be \"external\" or \"internal\".");
 		return;
 	}
 
 	if (_typeName.isPayable() && _typeName.visibility() != VariableDeclaration::Visibility::External)
 	{
-		typeError(_typeName.location(), "Only external function types can be payable.");
+		fatalTypeError(_typeName.location(), "Only external function types can be payable.");
 		return;
 	}
 
@@ -185,7 +185,7 @@ void ReferencesResolver::endVisit(FunctionTypeName const& _typeName)
 			solAssert(t->annotation().type, "Type not set for parameter.");
 			if (!t->annotation().type->canBeUsedExternally(false))
 			{
-				typeError(t->location(), "Internal type cannot be used for external function type.");
+				fatalTypeError(t->location(), "Internal type cannot be used for external function type.");
 				return;
 			}
 		}
@@ -300,10 +300,8 @@ void ReferencesResolver::endVisit(VariableDeclaration const& _variable)
 	if (_variable.annotation().type)
 		return;
 
-	TypePointer type;
 	if (_variable.typeName())
 	{
-		type = _variable.typeName()->annotation().type;
 		using Location = VariableDeclaration::Location;
 		Location varLoc = _variable.referenceLocation();
 		DataLocation typeLoc = DataLocation::Memory;
@@ -327,37 +325,51 @@ void ReferencesResolver::endVisit(VariableDeclaration const& _variable)
 				return {};
 			};
 
-			string errorString =
-				"Data location must be " +
+			string errorString;
+			if (!_variable.hasReferenceOrMappingType())
+				errorString = "Data location can only be specified for array, struct or mapping types";
+			else
+			{
+				errorString = "Data location must be " +
 				joinHumanReadable(
 					allowedDataLocations | boost::adaptors::transformed(locationToString),
 					", ",
 					" or "
 				);
-			if (_variable.isCallableParameter())
-			{
-				auto const& varScope = dynamic_cast<Declaration const&>(*_variable.scope());
-				string constant = _variable.isConstant() ? " constant" : "";
-				errorString += " for" + constant + " parameter in ";
-				errorString += varScope.visibilityToString(varScope.visibility()) + " function";
+				if (_variable.isCallableParameter())
+					errorString +=
+						" for" +
+						string(_variable.isConstant() ? " constant" : "") +
+						" parameter in" +
+						(_variable.isExternalCallableParameter() ? " external" : "") +
+						" function";
+				else
+					errorString += " for variable";
 			}
-			else
-				errorString += " for variable";
 			errorString += ", but " + locationToString(varLoc) + " was given.";
-			fatalTypeError(_variable.location(), errorString);
+			typeError(_variable.location(), errorString);
+
+			solAssert(!allowedDataLocations.empty(), "");
+			varLoc = *allowedDataLocations.begin();
 		}
 
 		// Find correct data location.
-		if (_variable.isEventParameter() || _variable.isConstant())
+		if (_variable.isEventParameter())
 		{
 			solAssert(varLoc == Location::Default, "");
 			typeLoc = DataLocation::Memory;
 		}
-		else if (_variable.isStateVariable())
+		else if (_variable.isStateVariable() && !_variable.isConstant())
 		{
 			solAssert(varLoc == Location::Default, "");
 			typeLoc = DataLocation::Storage;
 		}
+		else if (
+			dynamic_cast<StructDefinition const*>(_variable.scope()) ||
+			dynamic_cast<EnumDefinition const*>(_variable.scope())
+		)
+			// The actual location will later be changed depending on how the type is used.
+			typeLoc = DataLocation::Storage;
 		else
 			switch (varLoc)
 			{
@@ -371,9 +383,10 @@ void ReferencesResolver::endVisit(VariableDeclaration const& _variable)
 				typeLoc = DataLocation::CallData;
 				break;
 			case Location::Default:
-				solAssert(false, "Data location not properly set.");
+				solAssert(!_variable.hasReferenceOrMappingType(), "Data location not properly set.");
 			}
 
+		TypePointer type = _variable.typeName()->annotation().type;
 		if (auto ref = dynamic_cast<ReferenceType const*>(type.get()))
 		{
 			bool isPointer = !_variable.isStateVariable();
@@ -409,4 +422,22 @@ void ReferencesResolver::fatalDeclarationError(SourceLocation const& _location, 
 {
 	m_errorOccurred = true;
 	m_errorReporter.fatalDeclarationError(_location, _description);
+}
+
+DataLocation ReferencesResolver::variableLocationToDataLocation(VariableDeclaration::Location _varLoc)
+{
+	using DeclaredLoc = VariableDeclaration::Location;
+	switch (_varLoc)
+	{
+	case DeclaredLoc::Storage:
+		return DataLocation::Storage;
+	case DeclaredLoc::Memory:
+		return DataLocation::Memory;
+	case DeclaredLoc::CallData:
+		return DataLocation::CallData;
+	case DeclaredLoc::Default:
+		solAssert(false, "Invalid data location");
+	}
+	// Cannot be reached.
+	return DataLocation::Memory;
 }

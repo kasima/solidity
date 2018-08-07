@@ -88,6 +88,9 @@ private:
 	/// Adds a new error to the list of errors and throws to abort reference resolving.
 	void fatalDeclarationError(SourceLocation const& _location, std::string const& _description);
 
+	/// convert VariableDeclaration::Location to corresponding DataLocation
+	static DataLocation variableLocationToDataLocation(VariableDeclaration::Location _varLoc);
+
 	ErrorReporter& m_errorReporter;
 	NameAndTypeResolver& m_resolver;
 	/// Stack of return parameters.

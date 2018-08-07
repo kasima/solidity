@@ -685,6 +685,8 @@ public:
 	virtual bool isLValue() const override;
 	virtual bool isPartOfExternalInterface() const override { return isPublic(); }
 
+	/// @returns true iff this variable is the parameter (or return parameter) of a function
+	/// (or function type name or event) or declared inside a function body.
 	bool isLocalVariable() const;
 	/// @returns true if this variable is a parameter or return parameter of a function.
 	bool isCallableParameter() const;
@@ -693,7 +695,13 @@ public:
 	/// @returns true if this variable is a local variable or return parameter.
 	bool isLocalOrReturn() const;
 	/// @returns true if this variable is a parameter (not return parameter) of an external function.
+	/// This excludes parameters of external function type names.
 	bool isExternalCallableParameter() const;
+	/// @returns true if this variable is a parameter or return parameter of an internal function
+	/// or a function type of internal visibility.
+	bool isInternalCallableParameter() const;
+	/// @returns true iff this variable is a parameter(or return parameter of a library function
+	bool isLibraryFunctionParameter() const;
 	/// @returns true if the type of the variable does not need to be specified, i.e. it is declared
 	/// in the body of a function or modifier.
 	bool canHaveAutoType() const;
@@ -722,6 +730,8 @@ protected:
 	Visibility defaultVisibility() const override { return Visibility::Internal; }
 
 private:
+
+
 	ASTPointer<TypeName> m_typeName; ///< can be empty ("var")
 	/// Initially assigned value, can be missing. For local variables, this is stored inside
 	/// VariableDeclarationStatement and not here.
