@@ -5660,7 +5660,7 @@ BOOST_AUTO_TEST_CASE(bytes_delete_element)
 				delete data[94];
 				delete data[96];
 				delete data[98];
-				return data[94] == 0 && data[95] == byte(uint8(95)) && data[96] == 0 && data[97] == byte(uint8(97));
+				return data[94] == 0 && uint8(data[95]) == 95 && data[96] == 0 && uint8(data[97]) == 97;
 			}
 		}
 	)";
@@ -8029,7 +8029,7 @@ BOOST_AUTO_TEST_CASE(short_strings)
 				// change length: short -> shorter
 				data1.length = 19;
 				if (data1.length != 19) return 17;
-				if (data1[7] != byte(uint8(7 * 3))) return 18;
+				if (uint8(data1[7]) != 7 * 3) return 18;
 				// and now again to original size
 				data1.length = 22;
 				if (data1.length != 22) return 19;

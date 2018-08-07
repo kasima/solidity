@@ -115,7 +115,7 @@ This means that cyclic creation dependencies are impossible.
         {
             // Check some arbitrary condition.
             address tokenAddress = msg.sender;
-            return (keccak256(abi.encodePacked(newOwner)) & bytes32(uint256(0xff))) == (bytes20(tokenAddress) & bytes20(uint160(0xff)));
+            return (uint256(keccak256(abi.encodePacked(newOwner))) & 0xff) == (uint160(bytes20(tokenAddress)) & 0xff);
         }
     }
 
