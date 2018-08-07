@@ -697,10 +697,18 @@ public:
 	/// @returns true if the type of the variable does not need to be specified, i.e. it is declared
 	/// in the body of a function or modifier.
 	bool canHaveAutoType() const;
+	/// @returns true if this variable is a parameter of an event.
+	bool isEventParameter() const;
+	/// @returns true if the type of the variable is a reference or mapping type, i.e.
+	/// array, struct or mapping. These types can take a data location (and often require it).
+	/// Can only be called after reference resolution.
+	bool hasReferenceOrMappingType() const;
 	bool isStateVariable() const { return m_isStateVariable; }
 	bool isIndexed() const { return m_isIndexed; }
 	bool isConstant() const { return m_isConstant; }
 	Location referenceLocation() const { return m_location; }
+	/// @returns a set of allowed storage locations for the variable.
+	std::set<Location> allowedDataLocations() const;
 
 	virtual TypePointer type() const override;
 

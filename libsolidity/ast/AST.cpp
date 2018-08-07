@@ -471,6 +471,66 @@ bool VariableDeclaration::canHaveAutoType() const
 	return isLocalVariable() && !isCallableParameter();
 }
 
+bool VariableDeclaration::isEventParameter() const
+{
+	return dynamic_cast<EventDefinition const*>(scope()) != nullptr;
+}
+
+bool VariableDeclaration::hasReferenceOrMappingType() const
+{
+	solAssert(typeName(), "");
+	solAssert(typeName()->annotation().type, "Can only be called after reference resolution");
+	TypePointer const& type = typeName()->annotation().type;
+	return type->category() == Type::Category::Mapping || dynamic_cast<ReferenceType const*>(type.get());
+}
+
+set<VariableDeclaration::Location> VariableDeclaration::allowedDataLocations() const
+{
+	using Location = VariableDeclaration::Location;
+
+	if (!hasReferenceOrMappingType())
+		return set<Location>{ Location::Default };
+
+	if (isEventParameter())
+		return set<Location>{ Location::Default };
+	else if (isConstant())
+		return set<Location>{ Location::Default };
+	else if (isExternalCallableParameter())
+	{
+		auto const& contract = dynamic_cast<ContractDefinition const&>(
+			*dynamic_cast<Declaration const&>(*scope()).scope()
+		);
+		if (contract.isLibrary())
+			return set<Location>{ Location::CallData, Location::Storage };
+		else
+			return set<Location>{ Location::CallData };
+	}
+	else if (isCallableParameter())
+	{
+		auto const& varScope = dynamic_cast<Declaration const&>(*scope());
+		auto const& contract = dynamic_cast<ContractDefinition const&>(
+				*dynamic_cast<Declaration const&>(*scope()).scope()
+		);
+		if (varScope.isPublic())  // Public function parameter.
+		{
+			if (contract.isLibrary())
+				return set<Location>{ Location::Memory, Location::Storage };
+			else
+				return set<Location>{ Location::Memory };
+		}
+		else  // Internal or private function parameter.
+			return set<Location>{ Location::Memory, Location::Storage };
+	}
+	else  // Variable.
+	{
+		if (!isLocalVariable())
+			//  TODO: add Location::Calldata once implemented for local variables.
+			return set<Location>{ Location::Memory, Location::Storage };
+		else
+			return set<Location>{ Location::Memory, Location::Storage };
+	}
+}
+
 TypePointer VariableDeclaration::type() const
 {
 	return annotation().type;
