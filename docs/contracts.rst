@@ -114,8 +114,7 @@ This means that cyclic creation dependencies are impossible.
             returns (bool ok)
         {
             // Check some arbitrary condition.
-            address tokenAddress = msg.sender;
-            return (uint256(keccak256(abi.encodePacked(newOwner))) & 0xff) == (uint160(bytes20(tokenAddress)) & 0xff);
+            return currentOwner != newOwner;
         }
     }
 
@@ -811,12 +810,12 @@ as topics. The event call above can be performed in the same way as
 
     contract C {
         function f() public payable {
-            bytes32 _id = bytes32(uint256(0x420042));
+            uint256 _id = 0x420042;
             log3(
                 bytes32(msg.value),
                 bytes32(0x50cb9fe53daa9737b786ab3646f04d0150dc50ef4e75f59509d83667ad5adb20),
                 bytes32(uint256(msg.sender)),
-                _id
+                bytes32(_id)
             );
         }
     }
