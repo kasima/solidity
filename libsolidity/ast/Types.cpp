@@ -778,13 +778,16 @@ TypePointer RationalNumberType::forLiteral(Literal const& _literal)
 	{
 		TypePointer compatibleBytesType;
 		if (_literal.isHexNumber())
-			// counts the number of hex digits plus one (the "0" in "0x")
-			// and divides by two to obtain the compatible byte size
-			compatibleBytesType = make_shared<FixedBytesType>(count_if(
-				_literal.value().begin(),
+		{
+			size_t digitCount = count_if(
+				_literal.value().begin() + 2, // skip "0x"
 				_literal.value().end(),
 				[](unsigned char _c) -> bool { return isxdigit(_c); }
-			) / 2);
+			);
+			// require even number of digits
+			if (!(digitCount & 1))
+				compatibleBytesType = make_shared<FixedBytesType>(digitCount / 2);
+		}
 
 		return make_shared<RationalNumberType>(get<1>(validLiteral), compatibleBytesType);
 	}
