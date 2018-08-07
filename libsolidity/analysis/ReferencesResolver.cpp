@@ -158,7 +158,10 @@ void ReferencesResolver::endVisit(UserDefinedTypeName const& _typeName)
 	else if (ContractDefinition const* contract = dynamic_cast<ContractDefinition const*>(declaration))
 		_typeName.annotation().type = make_shared<ContractType>(*contract);
 	else
+	{
+		_typeName.annotation().type = make_shared<TupleType>();
 		typeError(_typeName.location(), "Name has to refer to a struct, enum or contract.");
+	}
 }
 
 void ReferencesResolver::endVisit(FunctionTypeName const& _typeName)
@@ -300,6 +303,9 @@ void ReferencesResolver::endVisit(VariableDeclaration const& _variable)
 	if (_variable.annotation().type)
 		return;
 
+	if (_variable.isConstant() && !_variable.isStateVariable())
+		m_errorReporter.declarationError(_variable.location(), "The \"constant\" keyword can only be used for state variables.");
+
 	if (_variable.typeName())
 	{
 		using Location = VariableDeclaration::Location;
@@ -338,10 +344,10 @@ void ReferencesResolver::endVisit(VariableDeclaration const& _variable)
 				);
 				if (_variable.isCallableParameter())
 					errorString +=
-						" for" +
-						string(_variable.isConstant() ? " constant" : "") +
-						" parameter in" +
-						(_variable.isExternalCallableParameter() ? " external" : "") +
+						" for " +
+						string(_variable.isReturnParameter() ? "return " : "") +
+						"parameter in" +
+						string(_variable.isExternalCallableParameter() ? " external" : "") +
 						" function";
 				else
 					errorString += " for variable";
@@ -359,10 +365,10 @@ void ReferencesResolver::endVisit(VariableDeclaration const& _variable)
 			solAssert(varLoc == Location::Default, "");
 			typeLoc = DataLocation::Memory;
 		}
-		else if (_variable.isStateVariable() && !_variable.isConstant())
+		else if (_variable.isStateVariable())
 		{
 			solAssert(varLoc == Location::Default, "");
-			typeLoc = DataLocation::Storage;
+			typeLoc = _variable.isConstant() ? DataLocation::Memory : DataLocation::Storage;
 		}
 		else if (
 			dynamic_cast<StructDefinition const*>(_variable.scope()) ||

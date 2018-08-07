@@ -708,8 +708,6 @@ bool TypeChecker::visit(VariableDeclaration const& _variable)
 		expectType(*_variable.value(), *varType);
 	if (_variable.isConstant())
 	{
-		if (!_variable.isStateVariable())
-			m_errorReporter.typeError(_variable.location(), "Illegal use of \"constant\" specifier.");
 		if (!_variable.type()->isValueType())
 		{
 			bool allowed = false;

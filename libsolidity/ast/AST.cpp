@@ -471,7 +471,9 @@ bool VariableDeclaration::isExternalCallableParameter() const
 		return false;
 
 	if (auto const* callable = dynamic_cast<CallableDeclaration const*>(scope()))
-		return callable->visibility() == Declaration::Visibility::External;
+		if (callable->visibility() == Declaration::Visibility::External)
+			return !isReturnParameter();
+
 	return false;
 }
 
@@ -541,8 +543,16 @@ set<VariableDeclaration::Location> VariableDeclaration::allowedDataLocations() c
 		return locations;
 	}
 	else if (isLocalVariable())
-		//  TODO: add Location::Calldata once implemented for local variables.
-		return set<Location>{ Location::Memory, Location::Storage };
+	{
+		// TODO where was this checked in the previous version?
+		solAssert(typeName(), "");
+		solAssert(typeName()->annotation().type, "Can only be called after reference resolution");
+		if (typeName()->annotation().type->category() == Type::Category::Mapping)
+			return set<Location>{ Location::Storage };
+		else
+			//  TODO: add Location::Calldata once implemented for local variables.
+			return set<Location>{ Location::Memory, Location::Storage };
+	}
 	else
 		// Struct members etc.
 		return set<Location>{ Location::Default };
